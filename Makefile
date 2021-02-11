@@ -12,7 +12,7 @@
 PWD:=$(shell pwd)
 
 all:  clean
-	mkdir --parents $(PWD)/build/Boilerplate.AppDir
+	mkdir --parents $(PWD)/build/Boilerplate.AppDir	
 	apprepo --destination=$(PWD)/build appdir boilerplate brave-browser libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libreadline8
 
 	cp /tmp/apprepo/brave-browser*.deb $(PWD)/build/build.deb
@@ -48,3 +48,4 @@ all:  clean
 
 clean:
 	rm -rf $(PWD)/build
+	rm -f /tmp/apprepo/brave-browser*.deb
