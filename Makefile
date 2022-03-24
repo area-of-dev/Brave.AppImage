@@ -9,43 +9,27 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-PWD:=$(shell pwd)
+PWD := $(shell pwd)
 
-all:  clean
-	mkdir --parents $(PWD)/build/Boilerplate.AppDir	
-	apprepo --destination=$(PWD)/build appdir boilerplate brave-browser libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libreadline8
+DOCKER_COMPOSE:=docker-compose -f $(PWD)/docker-compose.yaml
 
-	cp /tmp/apprepo/brave-browser*.deb $(PWD)/build/build.deb
-	dpkg -x $(PWD)/build/build.deb $(PWD)/build
-	cp -r $(PWD)/build/opt/brave*/brave $(PWD)/build/Boilerplate.AppDir
+.EXPORT_ALL_VARIABLES:
+CID=$(shell basename $(PWD) | tr -cd '[:alnum:]' | tr A-Z a-z)
+UID=$(shell id -u)
+GID=$(shell id -g)
 
-	echo "LD_LIBRARY_PATH=\$${LD_LIBRARY_PATH}:\$${APPDIR}/brave" >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo "export LD_LIBRARY_PATH=\$${LD_LIBRARY_PATH}" >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo 'UUC_VALUE=`cat /proc/sys/kernel/unprivileged_userns_clone 2> /dev/null`' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo 'if [ -z "$${UUC_VALUE}" ]' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '    then' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '        exec $${APPDIR}/brave/brave --no-sandbox "$${@}"' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '    else' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '        exec $${APPDIR}/brave/brave "$${@}"' >> $(PWD)/build/Boilerplate.AppDir/AppRun
-	echo '    fi' >> $(PWD)/build/Boilerplate.AppDir/AppRun
+.PHONY: all
 
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.svg 		|| true
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.desktop    || true
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.png 		|| true
 
-	cp --force $(PWD)/AppDir/*.png 		$(PWD)/build/Boilerplate.AppDir/ || true
-	cp --force $(PWD)/AppDir/*.desktop 	$(PWD)/build/Boilerplate.AppDir/ || true
-	cp --force $(PWD)/AppDir/*.svg 		$(PWD)/build/Boilerplate.AppDir/ || true
-
-	export ARCH=x86_64 && $(PWD)/bin/appimagetool.AppImage $(PWD)/build/Boilerplate.AppDir $(PWD)/Brave.AppImage
-	chmod +x $(PWD)/Brave.AppImage
-
+all: clean
+	$(DOCKER_COMPOSE) stop
+	$(DOCKER_COMPOSE) up --build --no-start
+	$(DOCKER_COMPOSE) up -d  "appimage"
+	$(DOCKER_COMPOSE) run    "appimage" make all
+	$(DOCKER_COMPOSE) run    "appimage" chown -R $(UID):$(GID) ./
+	$(DOCKER_COMPOSE) stop
 
 clean:
-	rm -rf $(PWD)/build
-	rm -f /tmp/apprepo/brave-browser*.deb
+	$(DOCKER_COMPOSE) up -d  "appimage"
+	$(DOCKER_COMPOSE) run    "appimage" make clean
+	$(DOCKER_COMPOSE) rm --stop --force
