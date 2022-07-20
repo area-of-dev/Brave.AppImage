@@ -18,7 +18,7 @@ all: clean init
 	$(PWD)/bin/Apprepo.AppImage --destination=$(PWD)/build appdir boilerplate \
 	    libgdk-pixbuf2.0-0 libatk1.0-0 libatk-bridge2.0-0 libgtk2.0-0 \
 	    libreadline8 at-spi2-core libpango-1.0-0 libselinux1 \
-		libtinfo6 libncurses6 libtinfo5
+		libtinfo6 libncurses6 libtinfo5 libgtk-3-0 libwayland-cursor0
 
 	cp -r /opt/brave*/brave $(PWD)/build/Boilerplate.AppDir
 
