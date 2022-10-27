@@ -17,7 +17,7 @@ all: clean init
 	mkdir --parents $(PWD)/build/Boilerplate.AppDir	
 	$(PWD)/bin/Apprepo.AppImage --destination=$(PWD)/build appdir boilerplate \
 	    libgdk-pixbuf2.0-0 libatk1.0-0 libatk-bridge2.0-0 libgtk2.0-0 \
-	    libreadline8 at-spi2-core libpango-1.0-0 libselinux1 \
+	    libreadline8 at-spi2-core libpango-1.0-0 libselinux1 libbotan-2-12 \
 		libtinfo6 libncurses6 libtinfo5 libgtk-3-0 libwayland-cursor0
 
 	cp -r /opt/brave*/brave $(PWD)/build/Boilerplate.AppDir
@@ -28,9 +28,10 @@ all: clean init
 	echo ''                                                        >> $(PWD)/build/Boilerplate.AppDir/AppRun
 	echo 'exec $${APPDIR}/brave/brave "$${@}"'                     >> $(PWD)/build/Boilerplate.AppDir/AppRun
 
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.svg 		|| true
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.desktop    || true
-	rm --force $(PWD)/build/Boilerplate.AppDir/*.png 		|| true
+	rm --force $(PWD)/build/Boilerplate.AppDir/*.svg                  || true
+	rm --force $(PWD)/build/Boilerplate.AppDir/*.desktop              || true
+	rm --force $(PWD)/build/Boilerplate.AppDir/*.png                  || true
+	rm --force $(PWD)/build/Boilerplate.AppDir/lib64/libstdc++.so.6*  || true
 
 	cp --force $(PWD)/AppDir/*.png 		$(PWD)/build/Boilerplate.AppDir/ || true
 	cp --force $(PWD)/AppDir/*.desktop 	$(PWD)/build/Boilerplate.AppDir/ || true
